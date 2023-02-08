@@ -1,0 +1,16 @@
+.idea
+.idea/*
+.logs
+.target
+.DS_Store
+out
+target/protoc-dependencies
+target/protoc-plugins
+target/classes
+target/generated-test-sources
+target/test-classes
+target/maven-archiver
+target/maven-status
+target/tuya-tedge-driver-sdk-java-1.0-SNAPSHOT.jar
+target/tuya-tedge-driver-sdk-java-1.0.0.jar
+

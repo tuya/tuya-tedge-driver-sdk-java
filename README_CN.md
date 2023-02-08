@@ -1,17 +1,17 @@
 [English](README.md) | [中文版](README_CN.md)
-# `tuya-edge-driver-sdk-java`: TEdge Southbound Driver Java SDK
+# tuya-tedge-driver-sdk-java：涂鸦边缘网关 Tedge 南向驱动开发 Java SDK
 
-## Terms
-* TEdge: the Tuya IoT Edge Gateway, used to connect third-party devices to Tuya IoT Cloud.
-* tedge-driver-sdk-java: the driver Java SDK, used to connect devices to TEdge through southbound interfaces.
-* Driver: the southbound plug-in of TEdge, used to interface with third-party devices.
+## 名词简介
+* Tedge: 涂鸦边缘网关，主要用于将第三方设备接入涂鸦云。
+* tedge-driver-sdk-java: Java驱动开发SDK，连接南向设备和Tedge。
+* 驱动：Tedge南向插件，用来对接第三方设备。
 
-## Architecture of TEdge
-![Image](./docs/images/Tedge架构图1.png)
+## Tedge 架构
+![Tedge架构图.png](./docs/images/Tedge架构图1.png)
 
-## Get started
+## 快速开始
 
-#### Dependency CurrentEdition：1.0.0
+#### 依赖当前最新版本:1.0.0
 ```xml
 <dependency>
     <groupId>com.tuya</groupId>
@@ -19,38 +19,37 @@
     <version>1.0.0</version>
 </dependency>
 
-<!-- Specify the Maven repository URL -->
+<!-- 添加maven仓库地址 -->
 <repository>
     <id>tuya-maven</id>
     <url>https://maven-other.tuya.com/repository/maven-public/</url>
 </repository>
 ```
 
-### Procedure
-1. Follow the example and implement the driver interface `DPModelDriver`.
-2. Package the driver into a Docker container.
-
-- For more information about the sample, see [TEdge Driver Demo](https://github.com/tuya/tuya-tedge-driver-java-example).
-- For more information about the guidelines on driver development, see [Documents on driver development](./docs/summary.md).
+### 驱动开发步骤
+1. 参考"驱动开发示例"，实现驱动接口 `DPModelDriver`
+2. 将驱动打包成一个 docker 容器即可
+3. 完整的示例请参考：[驱动程序Demo](https://github.com/tuya/tuya-tedge-driver-java-example)
+4. 完整驱动开发指南请阅读：[驱动开发指南](./docs/summary.md)
 
 ### DPModelDriver interface
 ```java
 public interface DPModelDriver {
-    // The callback to invoke when a sub-device is added, activated, updated, or deleted in the TEdge console.
+	// 在Tedge Web新增/激活/更新/删除一个子设备时，回调该接口
     void deviceNotify(DeviceNotifyType deviceNotifyType, DeviceInfo deviceInfo);
 
-    // The callback to invoke when a product is added, updated, or deleted in the TEdge console.
+	// 在Tedge Web新增/更新/删除一个产品时，回调该接口
     void productNotify(ProductNotifyType productNotifyType, ProductInfo productInfo);
 
-    // The callback to invoke when a command is received and forwarded over MQTT in the following direction: Tuya IoT Cloud > TEdge > Sub-device
+	// Tedge收到云端发往子设备的指令时(mqtt 消息)，回调该接口：tuya cloud-->Tedge-->device
     void handleCommands(String cid, CommandRequest request, Map<String, ProtocolProperties> propertiesMap, Map<String, DpExtend> dpExtendMap);
 
-    // The callback to invoke when a driver instance is stopped from running in the TEdge console. The driver program can be recycled.
+    // 在Tedge Web停止驱动实例运行时，回调该接口，驱动程序可以进行资源回收
     void stop();
 }
 ```
 
-### Example
+### 驱动开发示例
 ```java
 package dpdemo;
 
@@ -67,26 +66,24 @@ import lombok.extern.slf4j.Slf4j;
 public class Main {
     public static void main(String[] args) {
         try {
-            //Step1: DP model, new DpDriverService
+            //Step1: DP 模型，创建 DpDriverService
             DpDriverService driver = new DpDriverService(args);
 
-            //Step2: implement interface DPModelDriver, and call setDpDriverImpl
+            //Step2: 实现 DPModelDriver 接口，并调用 setDpDriverImpl
             DpDriverImpl driverImpl = new DpDriverImpl(driver.getDpDriverApi());
             DPModelDriver dpDriver = driverImpl;
             log.info("main set dpDriverImpl, start service!");
 
-            //When connecting MQTT protocol devices, it is necessary to implement the MqttDriver interface 
-            //and call the setMqttDriverImpl
+            //对接MQTT协议设备时，需另外实现MqttDriver接口，并调用相应接口设置回调
             //get mqtt username from customConfig
             //String username = "xxxx";
             //MqttDriver mqttDriver = new MqttDriverImpl();
             //driver.setMqttDriverImpl(mqttDriver, username);
 
-            //Step3: call start
+            //Step3: 调用 start
             driver.start(dpDriver);
 
-            //Examples of basic functions: get configuration, get all activated sub-devices, 
-            // add new product, add new sub-device, report sub-device status, and report DP
+            //Step4: 基本功能示例: 获取配置文件，获取已激活的子设备，新增产品、子设备、上报子设备状态、上报DP
             driverImpl.run();
         } catch (Exception e) {
             PrintException.printStack(e);
@@ -96,7 +93,7 @@ public class Main {
 ```
 
 ```java
-//DpDriverImpl: implementation the interface `type DPModelDriver interface`.
+//DpDriverImpl: 实现接口 `public interface DPModelDriver`
 package dpdemo.dpdriver;
 
 import tuya.tedge.driver.sdk.base.model.*;
@@ -115,9 +112,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-// `DpDriverImpl` requires the implementation of the interface `public interface DPModelDriver`.
-// The interface is defined in the SDK `tuya.tedge.driver.sdk.dpmodel.DPModelDriver`.
+// DpDriverImpl 必须实现接口 `public interface DPModelDriver`
+// 接口定义在sdk：`tuya.tedge.driver.sdk.dpmodel.DPModelDriver`
 @Slf4j
 public class DpDriverImpl implements DPModelDriver {
     private Map<String, DeviceShadow> deviceMap;
@@ -128,75 +124,86 @@ public class DpDriverImpl implements DPModelDriver {
         this.deviceMap = new ConcurrentHashMap<>();
     }
 
-    //run the custom logic
+    //启动后，先初始化已经存在的子设备列表
     public void run() {
         //......
         //TODO: implement me
     }
 
-    // Implementation of the interface `public interface DPModelDriver`.
-    // 1. The callback to invoke when a sub-device is added, activated, updated, or deleted in the TEdge console.
-    // 2. Note: Do not perform blocking operations with the interface.
-    // 3. Set the implementation of the interface to nil if you do not need to manually add sub-devices to the target gateway in the TEdge console.
+    /**
+     * 在TEdge控制台页面，新增、激活、更新子设备属性、删除子设备时，回调该接口
+     * 如果接入的设备不需要在Tedge控制台页面手动新增子设备，则该接口实现为空即可
+     * 注意：不要在该接口做阻塞性操作
+     */
     @Override
     public void deviceNotify(DeviceNotifyType deviceNotifyType, DeviceInfo device) {
+        log.info("deviceNotify type:{},device:{}", deviceNotifyType.getValue(), device.toString());
         //......
         //TODO: implement me
     }
 
-    // Implementation of the interface `public interface DPModelDriver`.
-    // 1. ProductNotify: the callback to invoke when a product is added, updated, or deleted.
-    // 2. Note: Do not perform blocking operations with the interface.
+    /**
+     * ProductNotify 产品增删改通知,删除产品时product参数为空
+     * 不要在该接口做阻塞性操作
+     */
     @Override
     public void productNotify(ProductNotifyType productNotifyType, ProductInfo productInfo) {
         log.info("productNotify type:{}, product:{}", productNotifyType.getValue(), productInfo.toString());
     }
 
-    // Implementation of the interface `public interface DPModelDriver`.
-    // The callback to invoke when a driver instance is updated or stopped from running on TEdge. The driver program can be recycled.
+    /**
+     * 在TEdge页面，更新驱动实例，或停止驱动实例时，回调该接口，驱动程序进行资源清理
+     */
     @Override
     public void stop() {
         //......
         //TODO: implement me
     }
 
-    // Implementation of the interface `public interface DPModelDriver`.
-    // 1. Receive messages sent by TEdge or Tuya IoT Cloud over MQTT.
-    // 2. Note: Do not perform blocking operations with the interface.
+    /**
+     * TEdge/云端 下发的MQTT消息
+     * 注意：不要在该接口做阻塞性操作
+     */
     @Override
     public void handleCommands(String cid, CommandRequest commandRequest, Map<String, ProtocolProperties> map, Map<String, DpExtend> map1) {
+        log.info("handleCommands cid：{}, handleCommands:{}", cid, commandRequest);
         //......
         //TODO: implement me
     }
 }
 ```
 
-### Implementation driver with MQTT
 ### MqttDriver interface
+* 当驱动程序对接MQTT协议设备时，无需自己实现MQTT Broker，Tedge平台和SDK已经提供相应能力
+* 开发者需要实现MQTTDriver接口：`public interface MqttDriver`
+* MqttDriver接口定义： `import tuya.tedge.driver.sdk.base.mqttitf.MqttDriver`
+
 ```java
 public interface MqttDriver {
-    // auth: the MQTT authentication event. A value of `true` indicates successful authentication.
+    //Auth mqtt 鉴权事件，鉴权成功返回true
     Boolean auth(String clientId, String username, String password);
 
-    // subscribe: the MQTT subscription event. A value of `true` indicates a successful subscription.
+    //Sub mqtt subscribe 订阅事件，鉴权成功返回true
     Boolean subscribe(String clientId, String username, String topic, Byte qos);
 
-    // publish: the MQTT authentication event. A value of `true` indicates successful publishing.
+    //Pub mqtt publish 事件，鉴权成功返回true
     Boolean publish(String clientId, String username, String topic, Byte qos, Boolean retained);
 
-    // unSubscribe: unsubscribe from an MQTT topic
+    // UnSub mqtt unsubscribe 取消订阅事件
     void unSubscribe(String clientId, String username, String[] topics);
 
     // Connected
     void connected(String clientId, String username);
 
-    //closed
+    // Closed
     void closed(String clientId, String username);
 }
 ```
 
+### Implementation driver with mqtt
+
 ```java
-//implement the interface `public interface MqttDriver`;
+//实现MqttDriver接口
 
 package dpdemo.mqttdriver;
 
@@ -205,7 +212,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MqttDriverImpl implements MqttDriver {
-    // Auth: the MQTT authentication event. A value of `true` indicates successful authentication.
     @Override
     public Boolean auth(String clientId, String username, String password) {
         log.info("mqtt auth clientId:{},username:{},password{}", clientId, username, password);
@@ -213,7 +219,6 @@ public class MqttDriverImpl implements MqttDriver {
         return true;
     }
 
-    // subscribe: the MQTT subscription event. A value of `true` indicates a successful subscription.
     @Override
     public Boolean subscribe(String clientId, String username, String topic, Byte qos) {
         log.info("mqtt Subscribe clientId:{},,username:{},topic:{},qos:{}", clientId, username, topic, qos);
@@ -221,7 +226,6 @@ public class MqttDriverImpl implements MqttDriver {
         return true;
     }
 
-    // publish: the MQTT authentication event. A value of `true` indicates successful publishing.
     @Override
     public Boolean publish(String clientId, String username, String topic, Byte qos, Boolean retained) {
         log.info("mqtt publish clientId:{},,username:{},topic:{},qos:{},retained:{}", clientId, username, topic, qos, retained);
@@ -229,7 +233,6 @@ public class MqttDriverImpl implements MqttDriver {
         return true;
     }
 
-    //unSubscribe: unsubscribe from an MQTT topic
     @Override
     public void unSubscribe(String clientId, String username, String[] topics) {
         log.info("mqtt unSubscribe clientId:{},,username:{},topics:{}", clientId, username, topics);
@@ -251,21 +254,21 @@ public class MqttDriverImpl implements MqttDriver {
 ```
 
 ## SDK API
-* API defined in the SDK：`import tuya.tedge.driver.sdk.dpmodel.DpDriverApi;`
-* Data structures defined by the SDK：`import tuya.tedge.driver.sdk.base.model.*;` and `import tuya.tedge.driver.sdk.dpmodel.model.*;`
+* SDK中定义的API：`import tuya.tedge.driver.sdk.dpmodel.DpDriverApi;`
+* SDK定义的主要数据结构：`import tuya.tedge.driver.sdk.base.model.*;` 和 `import tuya.tedge.driver.sdk.dpmodel.model.*;`
 
-###SDK core API list
+###SDK 核心 API 列表
 ```java
 public interface DpDriverApi {
     /**
-     * getCustomConfig Get custom configuration in expert mode
+     * 获取专家模式中的自定义配置项
      *
      * @return JSONObject
      */
     JSONObject getCustomConfig();
 
     /**
-     * activeDevice Add and activate one sub-device
+     * 新增并激活一个设备
      *
      * @param deviceMetadata
      * @return
@@ -273,59 +276,59 @@ public interface DpDriverApi {
     ActiveDeviceResponse activeDevice(DeviceMetadata deviceMetadata);
 
     /**
-     * SetDeviceExtendProperty Update the additional attributes of the sub device. 
-     * Repeated calls will overwrite the previous values
+     * SetDeviceExtendProperty 更新子设备附加属性，重复调用会覆盖之前的值
+     *
      * @param cid
      * @param deviceUpdateProperty
      */
     Boolean setDeviceProperty(String cid, DeviceUpdateProperty deviceUpdateProperty);
 
     /**
-     * setDeviceBaseAttr Update the sub-device name. 
-     *  After call the activeDevice interface successfully, it should be called to update the sub-device name
+     * setDeviceBaseAttr 更新子设备名，activeDevice 接口激活子设备成功后，应当调用该接口更新子设备名
+     *
      * @param cid
      * @param deviceUpdateProperty
      */
     Boolean setDeviceBaseAttr(String cid, DeviceUpdateProperty deviceUpdateProperty);
 
     /**
-     * deleteDevice delete one sub-device by cid
+     * 删除一个子设备
      *
      * @param cid
      */
     void deleteDevice(String cid);
 
     /**
-     * reportDeviceStatus Report the online status of sub-device
+     * 上报子设备在线状态
      *
      * @param deviceStatus
      */
     void reportDeviceStatus(DeviceStatus deviceStatus);
 
     /**
-     * reportWithDPData Report the data of device dp point
+     * 上报设备dp点的数据
      *
      * @param cid
      * @param dpDataList
      */
     void reportWithDPData(String cid, List<DpData> dpDataList);
-    
+
     /**
-     * allDevices Get all sub-devices in the driver
+     * 获取该驱动下的所有设备
      *
      * @return
      */
     Map<String, DeviceInfo> allDevices();
 
     /**
-     * getActiveDevices Get all activated sub-devices in the driver
+     * 获取该驱动下的所有已激活的子设备
      *
      * @return
      */
     Map<String, DeviceInfo> getActiveDevices();
 
     /**
-     * getDeviceById get DeviceInfo by cid of device
+     * 通过设备id获取设备信息
      *
      * @param cid
      * @return
@@ -333,20 +336,20 @@ public interface DpDriverApi {
     DeviceInfo getDeviceById(String cid);
 
     /**
-     * addProduct Add a new product
+     * 新增一个产品
      *
      * @param productMetadata
      */
     Boolean addProduct(ProductMetadata productMetadata);
 
     /**
-     * allProducts get all product in this driver
+     * 获取该驱动下所有产品
      * @return
      */
     Map<String, ProductInfo> allProducts();
 
     /**
-     * getProductById get ProductInfo by pid
+     * 通过产品id获取产品
      *
      * @param productId
      * @return
@@ -354,7 +357,7 @@ public interface DpDriverApi {
     ProductInfo getProductById(String productId);
 
     /**
-     * reportAlert reports alarm information
+     * reportAlert 驱动上报告警信息
      *
      * @param alertLevel
      * @param content
@@ -362,18 +365,19 @@ public interface DpDriverApi {
     void reportAlert(AlertLevel alertLevel, String content);
 
     /**
-     * getServiceId Get drive service Id
+     * getServiceId 获取驱动实例编号
      */
     String getServiceId();
 
     /**
-     * getGatewayInfo get gateway meta info
+     * getGatewayInfo 获取网关信息
      */
     GatewayInfo getGatewayInfo();
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * ReportThroughHttp Report customized messages through http 
+     * ReportThroughHttp 通过http接口上报自定义消息
+     *
      * @param api
      * @param version
      * @param payload
@@ -382,20 +386,22 @@ public interface DpDriverApi {
     String reportThroughHttp(String api, String version, Map<String, Object> payload);
 
     /**
-     * cmdRespSuccess Report the command execution result: success, please ask the corresponding business students for specific use
+     * CmdRespSuccess 上报指令执行结果：成功，具体使用请询问相应业务同学
+     *
      * @param sn
      */
     void cmdRespSuccess(Long sn);
 
     /**
-     * cmdRespFail Report the command execution result: failed, please ask the corresponding business students for specific use
+     * cmdRespFail 上报指令执行结果：失败，具体使用请询问相应业务同学
+     *
      * @param sn
      * @param message
      */
     void cmdRespFail(Long sn, String message);
 
     /**
-     * uploadFile upload picture or file to cloud
+     * uploadFile 图片或文件上传
      *
      * @param content
      * @param fileName
@@ -414,50 +420,50 @@ public interface DpDriverApi {
     Boolean UnSubscribe(String topic);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    // GetKV Get value by keys
+    // GetKV 根据key值获取驱动存储的自定义内容
     Map<String, byte[]> GetKV(String[] keys);
 
-    // PutKv Save keys/values
+    // PutKv 存储驱动的自定义内容
     Boolean PutKv(Map<String, byte[]> kvs);
 
-    // DeleteKV Remove the specified keys.
+    // DeleteKV 根据key值删除驱动存储的自定义内容
     Boolean DeleteKV(String[] keys);
 
-    // GetKVKeys Filter keys with prefix, and return all keys if prefix is null
+    // GetKVKeys 根据前缀筛选key，传空则返回所有key
     String[] GetKVKeys(String prefix);
 
-    // QueryKV Search KV by prefix, and return all results if prefix is null
+    // QueryKV 根据前缀搜索KV存储，传空返回所有的结果
     Map<String, byte[]> QueryKV(String prefix);
 
-    // GetKVOne Get value by key
+    // GetKVOne 根据key获取内容，不支持云端备份
     byte[] GetKVOne(String key);
 
-    // PutKVOne Save one key/value, support cloud backup
+    // PutKVOne 存储驱动的自定义内容，不支持云端备份
     Boolean PutKVOne(String key, byte[] value);
 
-    // GetBackupKV Get KV by key, support cloud backup
+    // GetBackupKV 根据key获取KV存储，支持云端备份
     Map<String, byte[]> GetBackupKV(String[] keys);
 
-    // GetBackupKV Get keys by prefix, and return all results. support cloud backup
+    // GetBackupKV 根据key获取KV存储，支持云端备份
     byte[] GetBackupKVOne(String key);
 
-    // GetBackupKVKeys Get keys by prefix, and return all results. support cloud backup
+    // GetBackupKVKeys 根据前缀获取keys，传空返回所有的结果，支持云端备份
     String[] GetBackupKVKeys(String prefix);
 
-    // PutBackupKV Update KVs, support cloud backup
+    // PutBackupKV 更新KV存储，支持云端备份
     Boolean PutBackupKV(Map<String, byte[]> kvs);
 
-    // PutBackupKVOne Update KV, support cloud backup
+    // PutBackupKVOne 更新KV存储，支持云端备份
     Boolean PutBackupKVOne(String key, byte[] value);
 
-    // DelBackupKV Delete KV, support cloud backup
+    // DelBackupKV 删除KV存储，支持云端备份
     Boolean DelBackupKV(String[] keys);
 
-    // QueryBackupKV Search KV by prefix, and return all results, support cloud backup
+    // QueryBackupKV 根据前缀搜索KV存储，传空返回所有的结果，支持云端备份
     Map<String, byte[]> QueryBackupKV(String prefix);
     
     /**
-     * Drive web service registration
+     * 驱动Web服务注册
      *
      * @param proxyInfo
      */
@@ -465,10 +471,9 @@ public interface DpDriverApi {
 }
 ```
 
-## Technical support
+## 技术支持
 Tuya IoT Developer Platform: https://developer.tuya.com/en/
 
 Tuya Developer Help Center: https://support.tuya.com/en/help
 
-Tuya Service Ticket System: https://service.console.tuya.com/
-
+Tuya Work Order System: https://service.console.tuya.com/
