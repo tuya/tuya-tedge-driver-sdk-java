@@ -15,7 +15,7 @@ import tuya.tedge.driver.sdk.grpc.device.EnumDeviceSource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import sun.misc.*;
+//import sun.misc.*;
 import ch.qos.logback.classic.Level;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,13 +32,13 @@ public class DpModelService extends DpDriverApiImpl implements BaseServiceCallba
         this.dpDriverImpl = dpDriverImpl;
     }
 
-    public void registerSignal() {
-        SignalExit handler = new SignalExit();
-        Signal.handle(new Signal("TERM"), handler);
-        Signal.handle(new Signal("INT"), handler);
-        Signal.handle(new Signal("USR1"), handler);
-        Signal.handle(new Signal("USR2"), handler);
-    }
+//    public void registerSignal() {
+//        SignalExit handler = new SignalExit();
+//        Signal.handle(new Signal("TERM"), handler);
+//        Signal.handle(new Signal("INT"), handler);
+//        Signal.handle(new Signal("USR1"), handler);
+//        Signal.handle(new Signal("USR2"), handler);
+//    }
 
     @Override
     public void addDeviceCallback(DeviceAddInfoDto request) {

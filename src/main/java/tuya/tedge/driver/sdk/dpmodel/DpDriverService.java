@@ -101,7 +101,7 @@ public class DpDriverService {
         DpRpcController rpcController = new DpRpcController(config.serviceConfig());
         rpcController.registerService(dpService).start();
 
-        dpService.registerSignal();
+        //dpService.registerSignal();
 
         return this;
     }
