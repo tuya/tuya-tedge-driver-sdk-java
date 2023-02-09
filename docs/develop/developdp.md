@@ -133,13 +133,13 @@ public interface DPModelDriver {
 }
 ```
 
-###5.驱动上报告警
+### 5.驱动上报告警
 - 驱动程序可以向Tedge上报告警，方便管理人员发现问题：`testAlarmReport()` [reportAlarm](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DpDriverImpl.java)
 
-###6.获取网关信息
+### 6.获取网关信息
 - 驱动程序有时候需要获取网关信息：`getGatewayInfo()` [getGatewayInfo](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DpDriverImpl.java)
 
-###7.key/value存储
+### 7.key/value存储
 - 驱动程序可通过k/v接口存储数据：`testGetPutKV` [testKVAPI](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DpDriverImpl.java)
 
 
