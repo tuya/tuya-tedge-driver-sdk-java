@@ -33,7 +33,8 @@
   - 修改 `src/main/resources/logback.xml`: 修改日志目录为 `./mnt/logs`，直接在当前项目中输出日志，方便查看：![修改驱动日志](../images/TedgeWeb/修改驱动日志目录.png)
 - 第六步：登录边缘网关后台，修改数据库中，驱动实例`driver-java-example-029061`的IP地址：![修改数据库-驱动实例IP](../images/TedgeWeb/驱动实例数据库修改.png)
   - `sqlite3 /var/tedge/edgex-db-data/tedge-resource.db`
-  - `update device_service set base_address="192.168.1.221:36002" where id="029061";`
+  - `update device_service set base_address="192.168.1.11:36002" where id="029061";`
+  - 说明：驱动 `driver-java-example-029061` 的 id 为 "029061"，"base_address"：驱动程序的 IP 地址；
   - 说明：默认情况下，驱动实例的IP地址为 127.0.0.1，这里要修改成开发机IP，以便驱动程序和Tedge边缘网关进行通信；
 - 第七步：编译并运行程序，即可在本地IDEA中运行驱动程序，并进行调试；
 
