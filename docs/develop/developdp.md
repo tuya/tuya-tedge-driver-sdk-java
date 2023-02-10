@@ -52,8 +52,8 @@ public class Main {
 ```
 
 #### b.实现驱动接口 `DPModelDriver`
-- 接口定义：[DP驱动接口](https://github.com/tuya/tuya-tedge-driver-sdk-java/blob/main/dpmodel/interface.go)
-- 实现示例：[完整示例代码](https://github.com/tuya/tuya-tedge-driver-java-example/tree/main/dpdriver)
+- 接口定义：[DP驱动接口](https://github.com/tuya/tuya-tedge-driver-sdk-java/blob/main/src/main/java/tuya/tedge/driver/sdk/dpmodel/DPModelDriver.java)
+- 实现示例：[完整示例代码](https://github.com/tuya/tuya-tedge-driver-java-example/tree/main/src/main/java/dpdemo)
 
 ```java
 public interface DPModelDriver {
@@ -88,7 +88,7 @@ public interface DPModelDriver {
 ## 二、驱动程序与真实设备
 ### 1.发现并激活子设备
 - 驱动程序负责发现并激活子设备，不同设备需要根据实际情况进行处理
-- 子设备激活接口`activeDevice`，具体调用示例参考 [TestAddDevice](https://github.com/tuya/tuya-tedge-driver-example/blob/main/dpdriver/driverTest.go)
+- 子设备激活接口`activeDevice`，具体调用示例参考 [addNewDevice](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DpDriverImpl.java)
 - 关键参数说明：
     - Cid：子设备Cid，必填字段，网关下必须唯一
 	- ProductId: Pid，设备所属于产品Id，必填字段
@@ -108,7 +108,7 @@ public interface DPModelDriver {
 
 ### 3.上报子设备信息
 - 上报子设备信息是驱动程序最核心的功能，驱动程序负责将设备信息转化成DP消息并上报
-- 驱动Demo中展示了4种基本DP点类型的上报，bool、整数、字符串、枚举：`public void reportDPS()`[ReportDp](https://github.com/tuya/tuya-tedge-driver-example/blob/main/dpdriver/device.go)
+- 驱动Demo中展示了4种基本DP点类型的上报，bool、整数、字符串、枚举：`public void reportDPS()`[ReportDp](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DeviceShadow.java)
 - SDK关键API：`reportWithDPData` 向涂鸦云上报设备DP消息
 
 ### 4.处理子设备指令
@@ -132,6 +132,16 @@ public interface DPModelDriver {
     }
 }
 ```
+
+### 5.驱动上报告警
+- 驱动程序可以向Tedge上报告警，方便管理人员发现问题：`testAlarmReport()` [reportAlarm](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DpDriverImpl.java)
+
+### 6.获取网关信息
+- 驱动程序有时候需要获取网关信息：`getGatewayInfo()` [getGatewayInfo](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DpDriverImpl.java)
+
+### 7.key/value存储
+- 驱动程序可通过k/v接口存储数据：`testGetPutKV` [testKVAPI](https://github.com/tuya/tuya-tedge-driver-java-example/blob/main/src/main/java/dpdemo/dpdriver/DpDriverImpl.java)
+
 
 下一章：[驱动本地调试指南](./driverdebug.md)
 

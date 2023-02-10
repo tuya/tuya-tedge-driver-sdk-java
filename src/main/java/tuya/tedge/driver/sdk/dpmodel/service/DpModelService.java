@@ -6,7 +6,6 @@ import tuya.tedge.driver.sdk.base.service.BaseServiceCallback;
 import tuya.tedge.driver.sdk.base.config.*;
 import tuya.tedge.driver.sdk.base.dto.device.*;
 import tuya.tedge.driver.sdk.base.model.*;
-import tuya.tedge.driver.sdk.base.signal.SignalExit;
 import tuya.tedge.driver.sdk.dpmodel.model.*;
 import tuya.tedge.driver.sdk.dpmodel.DPModelDriver;
 import tuya.tedge.driver.sdk.dpmodel.dto.product.DpDto;
@@ -15,7 +14,6 @@ import tuya.tedge.driver.sdk.grpc.device.EnumDeviceSource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import sun.misc.*;
 import ch.qos.logback.classic.Level;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,14 +28,6 @@ public class DpModelService extends DpDriverApiImpl implements BaseServiceCallba
 
     public void setDpDriverImpl(DPModelDriver dpDriverImpl) {
         this.dpDriverImpl = dpDriverImpl;
-    }
-
-    public void registerSignal() {
-        SignalExit handler = new SignalExit();
-        Signal.handle(new Signal("TERM"), handler);
-        Signal.handle(new Signal("INT"), handler);
-        Signal.handle(new Signal("USR1"), handler);
-        Signal.handle(new Signal("USR2"), handler);
     }
 
     @Override
