@@ -12,5 +12,4 @@ target/test-classes
 target/maven-archiver
 target/maven-status
 target/tuya-tedge-driver-sdk-java-1.0-SNAPSHOT.jar
-target/tuya-tedge-driver-sdk-java-1.0.0.jar
 

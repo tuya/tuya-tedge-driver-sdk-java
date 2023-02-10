@@ -12,21 +12,8 @@ Tuya IoT Edge Gateway (TEdge) provides southbound driver SDK for Java named `tuy
 
 ### Add a dependency
 
-Add the latest SDK dependency v1.0.0.
-
-```xml
-<dependency>
-    <groupId>com.tuya</groupId>
-    <artifactId>tuya-tedge-driver-sdk-java</artifactId>
-    <version>1.0.0</version>
-</dependency>
-
-<!-- Specify the Maven repository URL -->
-<repository>
-    <id>tuya-maven</id>
-    <url>https://maven-other.tuya.com/repository/maven-public/</url>
-</repository>
-```
+* Add the latest SDK dependency v1.0.0. [download driver-sdk-jar](./target/tuya-tedge-driver-sdk-java-1.0.0.jar)
+* maven dependency：Not currently supported
 
 ### Procedure
 
