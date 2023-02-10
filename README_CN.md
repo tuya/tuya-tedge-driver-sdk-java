@@ -12,21 +12,8 @@
 
 ### 添加依赖
 
-依赖当前最新 SDK 版本 1.0.0。
-
-```xml
-<dependency>
-    <groupId>com.tuya</groupId>
-    <artifactId>tuya-tedge-driver-sdk-java</artifactId>
-    <version>1.0.0</version>
-</dependency>
-
-<!-- 添加 maven 仓库地址 -->
-<repository>
-    <id>tuya-maven</id>
-    <url>https://maven-other.tuya.com/repository/maven-public/</url>
-</repository>
-```
+* 依赖当前最新 SDK 版本 1.0.0。[driver-sdk-jar](./target/tuya-tedge-driver-sdk-java-1.0.0.jar)
+* maven 依赖：暂不支持
 
 ### 驱动开发步骤
 
