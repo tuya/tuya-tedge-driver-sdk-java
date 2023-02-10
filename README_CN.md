@@ -6,7 +6,7 @@
 
 ## Tedge 架构
 
-![Tedge 架构图.png](./docs/images/Tedge 架构图 1.png)
+![Tedge 架构图.png](./docs/images/Tedge架构图1.png)
 
 ## 快速开始
 
