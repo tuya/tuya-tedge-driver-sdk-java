@@ -6,7 +6,7 @@ Tuya IoT Edge Gateway (TEdge) provides southbound driver SDK for Java named `tuy
 
 ## Architecture of TEdge
 
-![Tedge 架构图.png](./docs/images/Tedge架构图1.png)
+![Tedge Architecture.png](./docs/images/Tedge架构图1.png)
 
 ## Get started
 
