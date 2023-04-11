@@ -426,7 +426,7 @@ public class DpDriverApiImpl extends BaseService implements DpDriverApi {
         }
         resClient.getProductClient().ProductAdd(productDto);
 
-        productCache.addProductDto(productDto);
+        //productCache.addProductDto(productDto);
         return true;
     }
 
